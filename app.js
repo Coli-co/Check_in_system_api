@@ -3,7 +3,10 @@ const app = express()
 const port = 3000
 const pool = require('./config/pg-connect')
 const bodyParser = require('body-parser')
-const workTimeGreaterThanOffWorkTime = require('./helpers/check-time-helper')
+const {
+  workTimeGreaterThanOffWorkTime,
+  checkClockInOrClockOut
+} = require('./helpers/check-time-helper')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -32,6 +35,50 @@ app.post('/employees', async (req, res) => {
     return res
       .status(201)
       .json({ message: 'Employee record created successfully' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+//  supplementary time (clockIn or clockOut)
+app.put('/employees/:employeeNumber', async (req, res) => {
+  const { employeeNumber } = req.params
+  const { clockIn, clockOut } = req.body
+
+  try {
+    const sql = 'SELECT * FROM employees WHERE employeeNumber = $1'
+    const { rows } = await pool.query(sql, [employeeNumber])
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' })
+    }
+    //  check checkIn or checkout of request body
+    const clockResult = await checkClockInOrClockOut(rows, clockIn, clockOut)
+
+    const id = clockResult[0]
+    const validTime = clockResult[1]
+
+    //  if checkIn or checkOut time is not reasonable
+    if (!validTime) {
+      return res.status(400).json({
+        error:
+          'Work time must be less than off-work time or off-work time must be greater than work time.'
+      })
+    }
+
+    if (!clockIn) {
+      const clockInSQL = 'UPDATE employees SET clockout = $2 WHERE id = $1'
+      await pool.query(clockInSQL, [id, clockOut])
+      return res
+        .status(201)
+        .json({ message: 'clockout record updated successfully.' })
+    }
+
+    const clockOutSQL = 'UPDATE employees SET clockin = $2 WHERE id = $1'
+    await pool.query(clockOutSQL, [id, clockIn])
+    return res
+      .status(201)
+      .json({ message: 'clockin record updated successfully' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
