@@ -80,6 +80,32 @@ app.put('/employees/:employeeNumber', async (req, res) => {
   }
 })
 
+// list all employees with clockOut=null within date range
+app.get('/employees/nonClockOut', async (req, res) => {
+  // assuming the date format is 'YYYY-MM-DD'
+  const { startDate, endDate } = req.query
+  const checkDate = workTimeGreaterThanOffWorkTime(startDate, endDate)
+  //  Make sure startDate is less than endDate.
+  if (checkDate) {
+    return res.status(400).send({ message: 'startDate must before endDate.' })
+  }
+
+  try {
+    const query = `
+      SELECT *
+      FROM employees
+      WHERE clockOut IS NULL AND clockIn >= $1 AND clockIn <= $2;
+    `
+    const { rows } = await pool.query(query, [startDate, endDate])
+    if (rows.length === 0) {
+      return res.status(200).json({ data: [] })
+    }
+    return res.status(200).json({ data: rows })
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // list all employees
 app.get('/employees', async (req, res) => {
   try {
