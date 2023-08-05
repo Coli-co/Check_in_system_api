@@ -14,8 +14,8 @@ const pgConnect = async () => {
   try {
     const res = await pool.query('SELECT NOW()')
     console.log(res.rows[0]['now'])
-    await pool.end()
-    return res
+    const client = await pool.connect()
+    client.release()
   } catch (err) {
     console.log('Connection err:', err)
   }
