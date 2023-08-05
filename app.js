@@ -94,6 +94,28 @@ app.get('/employees', async (req, res) => {
   }
 })
 
+// list all employees for a specific date
+app.get('/employees/:date', async (req, res) => {
+  const { date } = req.params
+  try {
+    // Assuming the date format is 'YYYY-MM-DD'
+    const query = `
+      SELECT *
+      FROM employees
+      WHERE DATE(clockIn) = $1 OR DATE(clockOut) = $1;
+    `
+    const { rows } = await pool.query(query, [date])
+    if (rows.length === 0) {
+      return res.status(200).json({ data: [] })
+    }
+    // process employee data to specific format
+    const result = processEmployeeData(rows)
+    return res.status(200).json({ data: result })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 app.listen(port, () => {
   console.log(`Server is listening on http://localhost:${port}`)
 })
