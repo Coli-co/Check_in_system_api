@@ -7,15 +7,11 @@ const {
   workTimeGreaterThanOffWorkTime,
   checkClockInOrClockOut
 } = require('./helpers/check-time-helper')
+const processEmployeeData = require('./helpers/employee-data-helper')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(express.json())
-
-app.get('/test', (req, res) => {
-  console.log('Test api.')
-  res.send('Hello world!')
-})
 
 // new employee record: clock in & clock out function
 app.post('/employees', async (req, res) => {
@@ -79,6 +75,20 @@ app.put('/employees/:employeeNumber', async (req, res) => {
     return res
       .status(201)
       .json({ message: 'clockin record updated successfully' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// list all employees
+app.get('/employees', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM employees'
+    const { rows } = await pool.query(query)
+    //  process employee data to specific format
+    const result = processEmployeeData(rows)
+
+    return res.status(200).json({ data: result })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
