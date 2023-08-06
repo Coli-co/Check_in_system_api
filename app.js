@@ -123,14 +123,14 @@ app.get('/employees/noclockout', async (req, res) => {
 })
 
 // list top 5 employees with clockIn earlier for a specific date
-app.get('/employees/:date/top', async (req, res) => {
-  const { date } = req.params
+app.get('/employees/clockin-earliest', async (req, res) => {
   try {
-    // assuming the date format is 'YYYY-MM-DD'
+    const { date } = req.query
+
     const query = `
     SELECT *
       FROM employees
-      WHERE DATE(clockIn) = $1
+      WHERE clockIn = $1
       ORDER BY clockIn ASC
       LIMIT 5;
       `
