@@ -66,7 +66,7 @@ app.put('/employees/:employeenumber', async (req, res) => {
         .status(400)
         .json({ error: 'You do not need to fill in clockin or clockout data.' })
     }
-    
+
     const id = haveClockInOrClockout[0]
     const validTime = haveClockInOrClockout[1]
 
@@ -122,30 +122,46 @@ app.get('/employees/nonClockOut', async (req, res) => {
   }
 })
 
-// list all employees
-app.get('/employees', async (req, res) => {
+// list top 5 employees with clockIn earlier for a specific date
+app.get('/employees/:date/top', async (req, res) => {
+  const { date } = req.params
   try {
-    const query = 'SELECT * FROM employees'
-    const { rows } = await pool.query(query)
-    //  process employee data to specific format
-    const result = processEmployeeData(rows)
-
-    return res.status(200).json({ data: result })
+    // assuming the date format is 'YYYY-MM-DD'
+    const query = `
+    SELECT *
+      FROM employees
+      WHERE DATE(clockIn) = $1
+      ORDER BY clockIn ASC
+      LIMIT 5;
+      `
+    const { rows } = await pool.query(query, [date])
+    if (rows.length === 0) {
+      return res.status(200).json({ data: [] })
+    }
+    return res.status(200).json({ data: rows })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
-// list all employees for a specific date
-app.get('/employees/:date', async (req, res) => {
-  const { date } = req.params
+// list all employees data or all employees for a specific date
+app.get('/employees', async (req, res) => {
   try {
-    // Assuming the date format is 'YYYY-MM-DD'
+    const { date } = req.query
+    if (!date) {
+      const query = 'SELECT * FROM employees'
+      const { rows } = await pool.query(query)
+      //  process employee data to specific format
+      const result = processEmployeeData(rows)
+
+      return res.status(200).json({ data: result })
+    }
+    // list all employees for a specific date
     const query = `
       SELECT *
       FROM employees
-      WHERE DATE(clockIn) = $1 OR DATE(clockOut) = $1;
-    `
+      WHERE clockIn = $1 OR clockOut = $1;
+      `
     const { rows } = await pool.query(query, [date])
     if (rows.length === 0) {
       return res.status(200).json({ data: [] })
@@ -153,28 +169,6 @@ app.get('/employees/:date', async (req, res) => {
     // process employee data to specific format
     const result = processEmployeeData(rows)
     return res.status(200).json({ data: result })
-  } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// list top 5 employees with clockIn earlier for a specific date
-app.get('/employees/:date/top', async (req, res) => {
-  const { date } = req.params
-  try {
-    // assuming the date format is 'YYYY-MM-DD'
-    const query = `
-      SELECT *
-      FROM employees
-      WHERE DATE(clockIn) = $1
-      ORDER BY clockIn ASC
-      LIMIT 5;
-    `
-    const { rows } = await pool.query(query, [date])
-    if (rows.length === 0) {
-      return res.status(200).json({ data: [] })
-    }
-    return res.status(200).json({ data: rows })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
