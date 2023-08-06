@@ -18,7 +18,9 @@ app.post('/employees', async (req, res) => {
   const { employeeNumber, clockIn, clockOut } = req.body
 
   if (!employeeNumber && !clockIn && !clockOut) {
-    return res.status(400).send({ error: 'Request body of employeeNumber or clockIn or clockOut required.' })
+    return res.status(400).send({
+      error: 'Request body of employeeNumber or clockIn or clockOut required.'
+    })
   }
   const checkClockTime = workTimeGreaterThanOffWorkTime(clockIn, clockOut)
   //  Make sure work time is less than off-work time
@@ -40,22 +42,33 @@ app.post('/employees', async (req, res) => {
 })
 
 //  supplementary time (clockIn or clockOut)
-app.put('/employees/:employeeNumber', async (req, res) => {
-  const { employeeNumber } = req.params
+app.put('/employees/:employeenumber', async (req, res) => {
+  const { employeenumber } = req.params
   const { clockIn, clockOut } = req.body
 
   try {
-    const sql = 'SELECT * FROM employees WHERE employeeNumber = $1'
-    const { rows } = await pool.query(sql, [employeeNumber])
+    const sql = 'SELECT * FROM employees WHERE employeenumber = $1'
+    const { rows } = await pool.query(sql, [employeenumber])
 
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Employee not found' })
     }
-    //  check checkIn or checkout of request body
-    const clockResult = await checkClockInOrClockOut(rows, clockIn, clockOut)
+    //  check employee loss data of clockin or clockout data
+    const haveClockInOrClockout = await checkClockInOrClockOut(
+      rows,
+      clockIn,
+      clockOut
+    )
 
-    const id = clockResult[0]
-    const validTime = clockResult[1]
+    // employee have both clockin and clockout data
+    if (!haveClockInOrClockout) {
+      return res
+        .status(400)
+        .json({ error: 'You do not need to fill in clockin or clockout data.' })
+    }
+    
+    const id = haveClockInOrClockout[0]
+    const validTime = haveClockInOrClockout[1]
 
     //  if checkIn or checkOut time is not reasonable
     if (!validTime) {
@@ -77,7 +90,7 @@ app.put('/employees/:employeeNumber', async (req, res) => {
     await pool.query(clockOutSQL, [id, clockIn])
     return res
       .status(201)
-      .json({ message: 'clockin record updated successfully' })
+      .json({ message: 'clockin record updated successfully.' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
