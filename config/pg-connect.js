@@ -13,7 +13,7 @@ const pool = new Pool({
 const pgConnect = async () => {
   try {
     const res = await pool.query('SELECT NOW()')
-    console.log(res.rows[0]['now'])
+    console.log('Database connected:', res.rows[0]['now'])
     const client = await pool.connect()
     client.release()
   } catch (err) {
