@@ -5,12 +5,12 @@ async function createTable() {
     const query = `CREATE TABLE employees (
                     id SERIAL PRIMARY KEY,
                     employeeNumber INT NOT NULL,
-                    clockIn TIMESTAMP,
-                    clockOut TIMESTAMP
+                    clockIn bigint,
+                    clockOut bigint
                   );`
     await pool.query(query)
     console.log('Create table successfully.')
-  } catch (err) {git
+  } catch (err) {
     console.log('Create table wrong:', err)
   }
   pool.end()
