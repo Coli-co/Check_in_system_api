@@ -8,6 +8,7 @@ const {
   checkClockInOrClockOut
 } = require('./helpers/check-time-helper')
 const processEmployeeData = require('./helpers/employee-data-helper')
+const routes = require('./routes')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -173,6 +174,8 @@ app.get('/employees', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
+
+app.use(routes)
 
 app.listen(port, () => {
   console.log(`Server is listening on http://localhost:${port}`)
