@@ -1,6 +1,6 @@
 function calculateTimeDifferenceInHours(timestamp1, timestamp2) {
-  const date1 = new Date(timestamp1)
-  const date2 = new Date(timestamp2)
+  const date1 = timestamp1
+  const date2 = timestamp2
 
   // Get the time difference in milliseconds
   const timeDiffInMilliseconds = date2 - date1
