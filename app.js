@@ -17,12 +17,15 @@ app.use(express.json())
 app.post('/employees', async (req, res) => {
   const { employeeNumber, clockIn, clockOut } = req.body
 
+  if (!employeeNumber && !clockIn && !clockOut) {
+    return res.status(400).send({ error: 'Request body of employeeNumber or clockIn or clockOut required.' })
+  }
   const checkClockTime = workTimeGreaterThanOffWorkTime(clockIn, clockOut)
   //  Make sure work time is less than off-work time
   if (checkClockTime) {
     return res
       .status(400)
-      .send({ message: 'Work time should not be greater than off-work time.' })
+      .send({ error: 'Work time should not be greater than off-work time.' })
   }
   try {
     const query =
