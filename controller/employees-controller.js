@@ -1,23 +1,20 @@
 const processEmployeeData = require('../helpers/employee-data-helper')
-const {
-  getAllEmployees,
-  employeesForSpecificDate
-} = require('../models/check-employees-model')
-const {
-  employeesWithClockinEarliest
-} = require('../models/check-employees-model')
-const { employeesWithNoClockout } = require('../models/check-employees-model')
 const { checkClockInOrClockOut } = require('../helpers/check-time-helper')
-const { findEmployeeExistOrNot } = require('../models/check-employees-model')
-const clockinAndClockout = require('../models/add-employee-model')
 const {
   workTimeGreaterThanOffWorkTime,
   checkSignedOrUnsigned
 } = require('../helpers/check-time-helper')
+
 const {
+  getAllEmployees,
   fillInClockinData,
-  fillInClockoutData
-} = require('../models/check-employees-model')
+  fillInClockoutData,
+  clockinAndClockout,
+  findEmployeeExistOrNot,
+  employeesWithNoClockout,
+  employeesForSpecificDate,
+  employeesWithClockinEarliest
+} = require('../models/employees-model')
 
 const allEmployeesOrEmployeesForSpecificDate = async (req, res) => {
   try {
