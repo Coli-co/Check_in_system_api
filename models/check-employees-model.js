@@ -64,10 +64,29 @@ async function fillInClockinData(id, clockIn) {
   pool.end()
 }
 
+async function employeesWithNoClockout(startDate, endDate) {
+  try {
+    const query = `
+      SELECT *
+      FROM employees
+      WHERE clockOut IS NULL AND clockIn >= $1 AND clockIn <= $2;
+    `
+    const { rows } = await pool.query(query, [startDate, endDate])
+    if (rows.length > 0) {
+      console.log('Get no clockout employee data successfully.')
+    }
+    return rows
+  } catch (err) {
+    console.log('Get no clockout employee data err:', err)
+  }
+  pool.end()
+}
+
 module.exports = {
   getAllEmployees,
   employeesForSpecificDate,
   findEmployeeExistOrNot,
   fillInClockinData,
-  fillInClockoutData
+  fillInClockoutData,
+  employeesWithNoClockout
 }

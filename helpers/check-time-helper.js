@@ -2,7 +2,7 @@ const pool = require('../config/pg-connect')
 
 // check clockInTime whether is greater than clockOutTime
 function workTimeGreaterThanOffWorkTime(clockInTime, clockOutTime) {
-  return clockInTime > clockOutTime
+  return Number(clockInTime) > Number(clockOutTime)
 }
 
 // check employee who already has clockin data or clockout data and make it compare to new supplementary time (clockIn or clockOut) reasonable
