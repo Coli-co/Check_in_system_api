@@ -1,6 +1,8 @@
 const pool = require('../config/pg-connect')
-const getUTCInMillisecondsFromTaipeiTime = require('../helpers/employees-time-helper')
 const jsonData = require('../public/member.json')
+const {
+  getUTCInMillisecondsFromTaipeiTime
+} = require('../helpers/employees-time-helper')
 
 async function insertEmployeesData() {
   try {
