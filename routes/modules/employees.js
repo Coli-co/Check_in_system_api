@@ -1,10 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const clockFeature = require('../../controller/clock-feature-controller')
-const fillInClockinOrClockout = require('../../controller/fill-in-clockin-clockout-controller')
-const employeesWithNoClockoutForSpecificDateRange = require('../../controller/no-clockout-controller')
-const employeesWithClockinEarliestForSpecificDate = require('../../controller/top-clockin-earliest-controller')
-const allEmployeesOrEmployeesForSpecificDate = require('../../controller/check-employees-controller')
+
+const {
+  clockFeature,
+  fillInClockinOrClockout,
+  allEmployeesOrEmployeesForSpecificDate,
+  employeesWithClockinEarliestForSpecificDate,
+  employeesWithNoClockoutForSpecificDateRange
+} = require('../../controller/employees-controller')
 
 // list all employees with clockOut=null within date range
 router.get('/noclockout', employeesWithNoClockoutForSpecificDateRange)
