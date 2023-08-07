@@ -1,15 +1,11 @@
+const {
+  employeesWithClockinEarliest
+} = require('../models/check-employees-model')
+
 const employeesWithClockinEarliestForSpecificDate = async (req, res) => {
   try {
     const { date } = req.query
-
-    const query = `
-    SELECT *
-      FROM employees
-      WHERE clockIn = $1
-      ORDER BY clockIn ASC
-      LIMIT 5;
-      `
-    const { rows } = await pool.query(query, [date])
+    const rows = await employeesWithClockinEarliest(date)
     if (rows.length === 0) {
       return res.status(200).json({ data: [] })
     }

@@ -82,11 +82,31 @@ async function employeesWithNoClockout(startDate, endDate) {
   pool.end()
 }
 
+async function employeesWithClockinEarliest(date) {
+  try {
+    const query = `
+    SELECT *
+      FROM employees
+      WHERE clockIn = $1
+      ORDER BY clockIn ASC
+      LIMIT 5;
+      `
+    const { rows } = await pool.query(query, [date])
+    if (rows.length > 0) {
+      console.log('Get clockin earliest employees data successfully.')
+    }
+    return rows
+  } catch (err) {
+    console.log('Get clockin earliest employees data err:', err)
+  }
+}
+
 module.exports = {
   getAllEmployees,
   employeesForSpecificDate,
   findEmployeeExistOrNot,
   fillInClockinData,
   fillInClockoutData,
-  employeesWithNoClockout
+  employeesWithNoClockout,
+  employeesWithClockinEarliest
 }
