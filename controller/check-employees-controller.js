@@ -1,4 +1,3 @@
-const pool = require('../config/pg-connect')
 const processEmployeeData = require('../helpers/employee-data-helper')
 const {
   getAllEmployees,
