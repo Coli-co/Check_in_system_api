@@ -1,9 +1,10 @@
 const processEmployeeData = require('../helpers/employee-data-helper')
-const { checkClockInOrClockOut } = require('../helpers/check-time-helper')
+
 const {
-  workTimeGreaterThanOffWorkTime,
-  checkSignedOrUnsigned
-} = require('../helpers/check-time-helper')
+  checkSignedOrUnsigned,
+  checkClockInOrClockOut,
+  workTimeGreaterThanOffWorkTime
+} = require('../helpers/employees-time-helper')
 
 const {
   getAllEmployees,

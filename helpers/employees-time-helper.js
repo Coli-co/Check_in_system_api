@@ -1,5 +1,38 @@
-const pool = require('../config/pg-connect')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
 
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+function getUTCInMillisecondsFromTaipeiTime(taipeiDateTime) {
+  if (!taipeiDateTime) return null
+  // Create a dayjs object for the Taipei time and set the time zone
+  const taipeiTime = dayjs.tz(taipeiDateTime, 'Asia/Taipei')
+
+  // Convert to UTC+0 time
+  const utcTime = taipeiTime.utc()
+
+  // Get the time in milliseconds
+  const milliseconds = utcTime.valueOf()
+
+  return milliseconds
+}
+
+function calculateTimeDifferenceInHours(timestamp1, timestamp2) {
+  const date1 = timestamp1
+  const date2 = timestamp2
+
+  // Get the time difference in milliseconds
+  const timeDiffInMilliseconds = date2 - date1
+
+  // Convert milliseconds to hours
+  const timeDiffInHours = Number(
+    (timeDiffInMilliseconds / (1000 * 60 * 60)).toFixed(2)
+  )
+
+  return timeDiffInHours
+}
 // check clockInTime whether is greater than clockOutTime
 function workTimeGreaterThanOffWorkTime(clockInTime, clockOutTime) {
   return Number(clockInTime) > Number(clockOutTime)
@@ -33,5 +66,7 @@ function checkSignedOrUnsigned(input) {
 module.exports = {
   workTimeGreaterThanOffWorkTime,
   checkClockInOrClockOut,
-  checkSignedOrUnsigned
+  checkSignedOrUnsigned,
+  calculateTimeDifferenceInHours,
+  getUTCInMillisecondsFromTaipeiTime
 }

@@ -1,4 +1,6 @@
-const calculateTimeDifferenceInHours = require('./calculate-time-helper')
+const {
+  calculateTimeDifferenceInHours
+} = require('../helpers/employees-time-helper')
 const restTime = 1.5
 
 function processEmployeeData(data) {
