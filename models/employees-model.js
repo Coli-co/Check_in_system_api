@@ -112,6 +112,7 @@ async function employeesWithClockinEarliest(date) {
   } catch (err) {
     console.log('Get clockin earliest employees data err:', err)
   }
+  pool.end()
 }
 
 module.exports = {
