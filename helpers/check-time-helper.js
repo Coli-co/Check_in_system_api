@@ -27,7 +27,12 @@ async function checkClockInOrClockOut(data, clockIn, clockOut) {
   pool.end()
 }
 
+function checkSignedOrUnsigned(input) {
+  return input > 0
+}
+
 module.exports = {
   workTimeGreaterThanOffWorkTime,
-  checkClockInOrClockOut
+  checkClockInOrClockOut,
+  checkSignedOrUnsigned
 }
