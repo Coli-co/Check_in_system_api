@@ -15,6 +15,7 @@ function getUTCInMillisecondsFromTaipeiTime(taipeiDateTime) {
 
   // Get the time in milliseconds
   const milliseconds = utcTime.valueOf()
+
   return milliseconds
 }
 

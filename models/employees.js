@@ -5,8 +5,8 @@ async function createTable() {
     const query = `CREATE TABLE employees (
                     id SERIAL PRIMARY KEY,
                     employeeNumber INT NOT NULL,
-                    clockIn bigint,
-                    clockOut bigint
+                    clockIn BIGINT CHECK (clockIn >= 0),
+                    clockOut BIGINT CHECK (clockIn >= 0)
                   );`
     await pool.query(query)
     console.log('Create table successfully.')
