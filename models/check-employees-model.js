@@ -28,4 +28,46 @@ async function employeesForSpecificDate(date) {
   pool.end()
 }
 
-module.exports = { getAllEmployees, employeesForSpecificDate }
+async function findEmployeeExistOrNot(employeenumber) {
+  try {
+    const sql = 'SELECT * FROM employees WHERE employeenumber = $1'
+    const { rows } = await pool.query(sql, [employeenumber])
+    if (rows.length > 0) {
+      console.log('Employee exist in database.')
+    }
+    return rows
+  } catch (err) {
+    console.log('No employee in database:', err)
+  }
+  pool.end()
+}
+
+async function fillInClockoutData(id, clockOut) {
+  try {
+    const clockInSQL = 'UPDATE employees SET clockout = $2 WHERE id = $1'
+    const res = await pool.query(clockInSQL, [id, clockOut])
+    return res.rowCount === 1
+  } catch (err) {
+    console.log('Update clockout data err:', err)
+  }
+  pool.end()
+}
+
+async function fillInClockinData(id, clockIn) {
+  try {
+    const clockOutSQL = 'UPDATE employees SET clockin = $2 WHERE id = $1'
+    const res = await pool.query(clockOutSQL, [id, clockIn])
+    return res.rowCount === 1
+  } catch (err) {
+    console.log('Update clockin data err:', err)
+  }
+  pool.end()
+}
+
+module.exports = {
+  getAllEmployees,
+  employeesForSpecificDate,
+  findEmployeeExistOrNot,
+  fillInClockinData,
+  fillInClockoutData
+}

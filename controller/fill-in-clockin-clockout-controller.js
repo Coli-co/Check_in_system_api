@@ -1,16 +1,27 @@
-const pool = require('../config/pg-connect')
 const { checkClockInOrClockOut } = require('../helpers/check-time-helper')
+const { findEmployeeExistOrNot } = require('../models/check-employees-model')
+const {
+  fillInClockinData,
+  fillInClockoutData
+} = require('../models/check-employees-model')
 
 const fillInClockinOrClockout = async (req, res) => {
   try {
     const { employeenumber } = req.params
     const { clockIn, clockOut } = req.body
-    const sql = 'SELECT * FROM employees WHERE employeenumber = $1'
-    const { rows } = await pool.query(sql, [employeenumber])
+
+    if (!clockIn && !clockOut) {
+      return res
+        .status(400)
+        .json({ error: 'Request body of clockin or clockout required.' })
+    }
+
+    const rows = await findEmployeeExistOrNot(employeenumber)
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Employee not found' })
+      return res.status(404).json({ error: 'Employee not found.' })
     }
+
     //  check employee loss data of clockin or clockout data
     const haveClockInOrClockout = await checkClockInOrClockOut(
       rows,
@@ -37,18 +48,19 @@ const fillInClockinOrClockout = async (req, res) => {
     }
 
     if (!clockIn) {
-      const clockInSQL = 'UPDATE employees SET clockout = $2 WHERE id = $1'
-      await pool.query(clockInSQL, [id, clockOut])
+      const updateClockoutRes = await fillInClockoutData(id, clockOut)
+      if (updateClockoutRes) {
+        return res
+          .status(201)
+          .json({ message: 'Clockout record updated successfully.' })
+      }
+    }
+    const updateClockinRes = await fillInClockinData(id, clockIn)
+    if (updateClockinRes) {
       return res
         .status(201)
-        .json({ message: 'clockout record updated successfully.' })
+        .json({ message: 'Clockin record updated successfully.' })
     }
-
-    const clockOutSQL = 'UPDATE employees SET clockin = $2 WHERE id = $1'
-    await pool.query(clockOutSQL, [id, clockIn])
-    return res
-      .status(201)
-      .json({ message: 'clockin record updated successfully.' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }

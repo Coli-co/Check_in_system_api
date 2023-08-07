@@ -24,7 +24,6 @@ async function checkClockInOrClockOut(data, clockIn, clockOut) {
       return [id, res]
     }
   }
-  pool.end()
 }
 
 function checkSignedOrUnsigned(input) {

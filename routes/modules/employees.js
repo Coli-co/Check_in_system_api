@@ -6,10 +6,10 @@ const employeesWithNoClockoutForSpecificDateRange = require('../../controller/no
 const employeesWithClockinEarliestForSpecificDate = require('../../controller/top-clockin-earliest-controller')
 const allEmployeesOrEmployeesForSpecificDate = require('../../controller/check-employees-controller')
 
-router.post('/', clockFeature)
-
 //  supplementary time (clockIn or clockOut)
 router.put('/:employeenumber', fillInClockinOrClockout)
+
+router.post('/', clockFeature)
 
 // list all employees with clockOut=null within date range
 router.get('/noclockout', employeesWithNoClockoutForSpecificDateRange)
