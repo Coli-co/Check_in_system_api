@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "seed": "node models/employees.js & node seeders/employee-seed-file.js",
+    "seed": "node models/create-employees-model.js & node seeders/employee-seed-file.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
