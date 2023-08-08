@@ -19,4 +19,18 @@ function processEmployeeData(data) {
   return data
 }
 
-module.exports = processEmployeeData
+function transStringToInteger(data) {
+  for (let i = 0; i < data.length; i++) {
+    if (!data[i]['clockin']) {
+      data[i]['clockout'] = Number(data[i]['clockout'])
+    } else if (!data[i]['clockout']) {
+      data[i]['clockin'] = Number(data[i]['clockin'])
+    } else {
+      data[i]['clockin'] = Number(data[i]['clockin'])
+      data[i]['clockout'] = Number(data[i]['clockout'])
+    }
+  }
+  return data
+}
+
+module.exports = { processEmployeeData, transStringToInteger }

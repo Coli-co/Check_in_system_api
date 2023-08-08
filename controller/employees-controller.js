@@ -1,4 +1,7 @@
-const processEmployeeData = require('../helpers/employee-data-helper')
+const {
+  processEmployeeData,
+  transStringToInteger
+} = require('../helpers/employee-data-helper')
 
 const {
   checkSignedOrUnsigned,
@@ -24,8 +27,8 @@ const allEmployeesOrEmployeesForSpecificDate = async (req, res) => {
     if (!date) {
       const rows = await getAllEmployees()
       //  process employee data to specific format
-      const result = processEmployeeData(rows)
-
+      const allRows = await processEmployeeData(rows)
+      const result = await transStringToInteger(allRows)
       return res.status(200).json({ data: result })
     }
 
@@ -35,7 +38,8 @@ const allEmployeesOrEmployeesForSpecificDate = async (req, res) => {
       return res.status(200).json({ data: [] })
     }
 
-    const result = processEmployeeData(rows)
+    const allRows = await processEmployeeData(rows)
+    const result = await transStringToInteger(allRows)
     return res.status(200).json({ data: result })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
@@ -58,7 +62,8 @@ const employeesWithNoClockoutForSpecificDateRange = async (req, res) => {
     if (rows.length === 0) {
       return res.status(200).json({ data: [] })
     }
-    return res.status(200).json({ data: rows })
+    const result = await transStringToInteger(rows)
+    return res.status(200).json({ data: result })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
@@ -71,7 +76,8 @@ const employeesWithClockinEarliestForSpecificDate = async (req, res) => {
     if (rows.length === 0) {
       return res.status(200).json({ data: [] })
     }
-    return res.status(200).json({ data: rows })
+    const result = await transStringToInteger(rows)
+    return res.status(200).json({ data: result })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
   }
