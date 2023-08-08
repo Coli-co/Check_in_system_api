@@ -9,18 +9,4 @@ const pool = new Pool({
   port: process.env.PGPORT
 })
 
-// check connection
-const pgConnect = async () => {
-  try {
-    const res = await pool.query('SELECT NOW()')
-    console.log('Database connected:', res.rows[0]['now'])
-    const client = await pool.connect()
-    client.release()
-  } catch (err) {
-    console.log('Connection err:', err)
-  }
-}
-
-pgConnect()
-
 module.exports = pool
