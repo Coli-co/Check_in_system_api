@@ -54,9 +54,9 @@ chmod +x start.sh && ./start.sh
 
 6. Finally, to shut down the application, please run the command
 
-```
-docker compose down
-```
+  ```
+  docker compose down
+  ```
 
 ### My Cloud Deployment
 
@@ -78,9 +78,10 @@ docker compose down
   D --> F[Database]
   E --> F
   ```
+  ![ECS-task](./public/ECS-task.jpg)
 
-  The cloud services I used:
-
+  
+- The cloud services I used:
   - Application Load Balancer (ALB)
   - Elastic Container Registry
   - Elastic Container Service (ECS) + Fargate Launch Type (Serverless)
