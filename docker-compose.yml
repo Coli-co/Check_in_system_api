@@ -12,7 +12,7 @@ services:
     container_name: podb
     image: postgres:15
     ports:
-      - "5432:5432"
+      - "5431:5432"
     environment:
       - POSTGRES_USER=${PGUSER}
       - POSTGRES_PASSWORD=${PGPASSWORD}
