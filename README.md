@@ -1,93 +1,88 @@
-## Employee clock api
+## Employee Clock APIs
 
 ### Introduction
 
-This RESTful API is mainly the attendance of employees. It can be refer to [api document](http://host-html-group.s3-website-ap-northeast-1.amazonaws.com).
+The RESTful APIs are related to the attendance of the employees.
 
-### Build local API server
+API Document is here: [API Doc](http://host-html-group.s3-website-ap-northeast-1.amazonaws.com)
 
-##### Please make sure you have Node.js, Express and PostgreSQL installed.
+### Usage
 
-#### Clone the repo
+##### Prerequisites
+
+- Node.js
+- npm
+- Docker
+
+##### Steps
+
+1. Clone the repo
 
 ```
 git clone https://github.com/Coli-co/Employee_clock_api.git
 ```
 
-#### Switch to project folder
+2. Move into the folder
 
 ```
 cd Employee_clock_api
 ```
 
-#### Open project
-
-```
-code .
-```
-
-#### Install packages required
+3. Install packages
 
 ```
 npm install
 ```
 
-#### Set .env file
-
-- All related parameters written in `.env.example` file.
-
-#### Load data into database
+4. Create an `.env` file based on `.env.example`. Please remember to fill in the rest values.
 
 ```
-npm run seed
+cat .env.example >> .env
 ```
 
-#### Start server
+5. Execute the `start.sh` to run the application. you can send request to `http://localhost:3000` and add related endpoints.
 
 ```
-npm run start
+chmod +x start.sh && sh start.sh
 ```
 
-### Dockerize
-
-- Build image
+or
 
 ```
-docker build -t <name>:<tag> .
+chmod +x start.sh && ./start.sh
 ```
 
-- Run container
+6. Finally, to shut down the application, please run the command
 
 ```
-docker run -p 3000:3000 -d --rm --name <container_name> <name>:<tag>
+docker compose down
 ```
 
-- Then you can send request to `http://localhost:3000` and add related endpoint, query parameter, and request parameter which described in api document.
+### My Cloud Deployment
 
-## Deploy
+- The application is also deployed on the cloud using AWS. Here is the DNS name for testing.
+  ```
+  http://employeealb-1404378238.ap-northeast-1.elb.amazonaws.com
+  ```
+- Here is my architecture:
 
-- Pull Docker image from AWS ECR.
-- Use AWS Serverless container platform - `ECS - Fargate Launch Type`, it just runs tasks based on CPU/RAM.
-- Application Load Balancer controls HTTP request and allow it to ECS task.
-- Database set in AWS EC2 instance.
-- You can visit any api with the following base url
+  ```mermaid
+  flowchart LR
+  user --> |HTTP:80|B(Application\nLoad Balancer)
+  B --> D
+  B --> E
+  subgraph ECS Cluster
+  D[ECS Task 1]
+  E[ECS Task 2]
+  end
+  D --> F[Database]
+  E --> F
+  ```
 
-```
-http://employeealb-1404378238.ap-northeast-1.elb.amazonaws.com
-```
+  The cloud services I used:
 
-## Tools
-
-- Server: Node.js
-- Framework: Express.js
-- JavaScript
-- Database: PostgreSQL
-- Docker
-- API documentation: Redocly
-
-## AWS Cloud Services
-
-- EC2
-- ECR
-- ECS
-- Application Load Balancer
+  - Application Load Balancer (ALB)
+  - Elastic Container Registry
+  - Elastic Container Service (ECS) + Fargate Launch Type (Serverless)
+  - Elastic Compute Cloud (EC2) as database (PostgreSQL)
+  - S3 for API Documentation (Redoc)
