@@ -1,11 +1,36 @@
-const pool = require('../config/pg-connect')
+const { Pool } = require('pg')
+require('dotenv').config()
 const jsonData = require('../public/member.json')
 const {
   getUTCInMillisecondsFromTaipeiTime
 } = require('../helpers/employees-time-helper')
 
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: 'localhost',
+  database: process.env.PGDB,
+  password: process.env.PGPASSWORD,
+  port: 5431
+})
+
+async function createTable() {
+  try {
+    const query = `CREATE TABLE IF NOT EXISTS employees (
+                    id SERIAL PRIMARY KEY,
+                    employeeNumber INT NOT NULL,
+                    clockIn BIGINT CHECK (clockIn >= 0),
+                    clockOut BIGINT CHECK (clockIn >= 0)
+                  );`
+    await pool.query(query)
+    console.log('Create table successfully.')
+  } catch (err) {
+    console.log('Create table wrong:', err)
+  }
+}
+
 async function insertEmployeesData() {
   try {
+    await createTable()
     for (const employee of jsonData) {
       const { employeeNumber, clockIn, clockOut } = employee
       const haveClockInData = await getUTCInMillisecondsFromTaipeiTime(clockIn)
