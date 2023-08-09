@@ -40,7 +40,7 @@ npm install
 cat .env.example >> .env
 ```
 
-5. Execute the `start.sh` to run the application. you can send request to `http://localhost:3000` and add related endpoints.
+5. Execute the `start.sh` to run the application, and then you can send request to `http://localhost:3000` with related endpoints.
 
 ```
 chmod +x start.sh && sh start.sh
@@ -54,9 +54,9 @@ chmod +x start.sh && ./start.sh
 
 6. Finally, to shut down the application, please run the command
 
-  ```
-  docker compose down
-  ```
+```
+docker compose down
+```
 
 ### My Cloud Deployment
 
@@ -78,9 +78,9 @@ chmod +x start.sh && ./start.sh
   D --> F[Database]
   E --> F
   ```
+
   ![ECS-task](./public/ECS-task.jpg)
 
-  
 - The cloud services I used:
   - Application Load Balancer (ALB)
   - Elastic Container Registry
