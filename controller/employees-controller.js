@@ -152,11 +152,33 @@ const clockFeature = async (req, res) => {
       error: 'Request body of employeeNumber or clockIn or clockOut required.'
     })
   }
-  if (!checkSignedOrUnsigned(clockIn) || !checkSignedOrUnsigned(clockOut)) {
-    return res.status(400).send({
-      error: 'ClockIn or clockOut must be greater than zero.'
-    })
+  
+  if (checkSignedOrUnsigned(clockIn) && !clockOut) {
+    const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
+
+    if (rowCount) {
+      return res
+        .status(201)
+        .json({ message: 'ClockIn record created successfully' })
+    }
   }
+  
+  if (checkSignedOrUnsigned(clockOut) && !clockIn) {
+    const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
+
+    if (rowCount) {
+      return res
+        .status(201)
+        .json({ message: 'ClockOut record created successfully' })
+    }
+  }
+  if (!checkSignedOrUnsigned(clockIn) || !checkSignedOrUnsigned(clockOut)) {
+    return res
+      .status(400)
+      .json({ error: 'ClockIn or clockOut must be greater than zero.' })
+  }
+
+
   const checkClockTime = workTimeGreaterThanOffWorkTime(clockIn, clockOut)
   //  make sure work time is less than off-work time
   if (checkClockTime) {
