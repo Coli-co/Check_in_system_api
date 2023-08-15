@@ -13,6 +13,25 @@ async function clockinAndClockout(employeeNumber, clockIn, clockOut) {
   pool.end()
 }
 
+async function employeesForSpecificDateRange(start, end) {
+  try {
+    const query = `
+        SELECT *
+        FROM employees
+        WHERE (DATE_TRUNC('day', COALESCE(TO_TIMESTAMP(NULLIF(clockin, 0) / 1000.0), TO_TIMESTAMP(NULLIF(clockout, 0) / 1000.0))) >= DATE_TRUNC('day', TO_TIMESTAMP($1 / 1000.0)))
+          AND (DATE_TRUNC('day', COALESCE(TO_TIMESTAMP(NULLIF(clockin, 0) / 1000.0), TO_TIMESTAMP(NULLIF(clockout, 0) / 1000.0))) <= DATE_TRUNC('day', TO_TIMESTAMP($2 / 1000.0)));
+        `
+    const { rows } = await pool.query(query, [start, end])
+
+    console.log('Get employeesForSpecificDateRange data successfully.')
+
+    return rows
+  } catch (err) {
+    console.log('Get employeesForSpecificDateRange data err:', err)
+  }
+  pool.end()
+}
+
 async function employeesForSpecificDate(date) {
   try {
     const query = `
@@ -113,5 +132,6 @@ module.exports = {
   findEmployeeExistOrNot,
   employeesWithNoClockout,
   employeesForSpecificDate,
-  employeesWithClockinEarliest
+  employeesWithClockinEarliest,
+  employeesForSpecificDateRange
 }

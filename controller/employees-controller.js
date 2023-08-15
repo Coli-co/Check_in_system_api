@@ -16,8 +16,43 @@ const {
   findEmployeeExistOrNot,
   employeesWithNoClockout,
   employeesForSpecificDate,
-  employeesWithClockinEarliest
+  employeesWithClockinEarliest,
+  employeesForSpecificDateRange
 } = require('../models/employees-model')
+
+const allEmployeesForSpecificDateRange = async (req, res) => {
+  try {
+    const { start, end } = req.query
+
+    // check empty value
+    if (!start || !end) {
+      return res
+        .status(400)
+        .json({ error: 'Query params of start and end both required. ' })
+    }
+
+    if (!checkSignedOrUnsigned(start) || !checkSignedOrUnsigned(end)) {
+      return res
+        .status(400)
+        .json({ error: 'Start or end must be grater than zero.' })
+    }
+
+    if (workTimeGreaterThanOffWorkTime(start, end)) {
+      return res
+        .status(400)
+        .json({ error: 'Start value must be less than end value.' })
+    }
+    const rows = await employeesForSpecificDateRange(start, end)
+    if (rows.length === 0) {
+      return res.status(200).json({ data: [] })
+    }
+    const allRows = await processEmployeeData(rows)
+    const result = await transStringToInteger(allRows)
+    return res.status(200).json({ data: result })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+}
 
 const allEmployeesForSpecificDate = async (req, res) => {
   try {
@@ -193,6 +228,7 @@ module.exports = {
   clockFeature,
   fillInClockinOrClockout,
   allEmployeesForSpecificDate,
+  allEmployeesForSpecificDateRange,
   employeesWithClockinEarliestForSpecificDate,
   employeesWithNoClockoutForSpecificDateRange
 }

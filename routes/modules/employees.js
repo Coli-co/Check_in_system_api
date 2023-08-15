@@ -5,6 +5,7 @@ const {
   clockFeature,
   fillInClockinOrClockout,
   allEmployeesForSpecificDate,
+  allEmployeesForSpecificDateRange,
   employeesWithClockinEarliestForSpecificDate,
   employeesWithNoClockoutForSpecificDateRange
 } = require('../../controller/employees-controller')
@@ -19,6 +20,9 @@ router.get('/clockin-earliest', employeesWithClockinEarliestForSpecificDate)
 router.put('/:employeenumber', fillInClockinOrClockout)
 
 router.post('/', clockFeature)
+
+// list all employees for a specific date range
+router.get('/', allEmployeesForSpecificDateRange)
 
 // list all employees for a specific date
 router.get('/', allEmployeesForSpecificDate)
