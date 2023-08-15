@@ -13,27 +13,18 @@ async function clockinAndClockout(employeeNumber, clockIn, clockOut) {
   pool.end()
 }
 
-async function getAllEmployees() {
-  try {
-    const query = 'SELECT * FROM employees'
-    const { rows } = await pool.query(query)
-    console.log('Get all employees data successfully.')
-    return rows
-  } catch (err) {
-    console.log('Get all employees data err:', err)
-  }
-  pool.end()
-}
-
 async function employeesForSpecificDate(date) {
   try {
     const query = `
       SELECT *
       FROM employees
-      WHERE clockIn = $1 OR clockOut = $1;
+      WHERE DATE_TRUNC('day', COALESCE(TO_TIMESTAMP(NULLIF(clockin, 0) / 1000.0), TO_TIMESTAMP(NULLIF(clockout, 0) / 1000.0))) = DATE_TRUNC('day', TO_TIMESTAMP($1 / 1000.0));
       `
+
     const { rows } = await pool.query(query, [date])
+
     console.log('Get employeesForSpecificDate data successfully.')
+
     return rows
   } catch (err) {
     console.log('Get employeesForSpecificDate data err:', err)
@@ -116,7 +107,6 @@ async function employeesWithClockinEarliest(date) {
 }
 
 module.exports = {
-  getAllEmployees,
   fillInClockinData,
   fillInClockoutData,
   clockinAndClockout,

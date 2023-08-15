@@ -10,7 +10,6 @@ const {
 } = require('../helpers/employees-time-helper')
 
 const {
-  getAllEmployees,
   fillInClockinData,
   fillInClockoutData,
   clockinAndClockout,
@@ -20,17 +19,9 @@ const {
   employeesWithClockinEarliest
 } = require('../models/employees-model')
 
-const allEmployeesOrEmployeesForSpecificDate = async (req, res) => {
+const allEmployeesForSpecificDate = async (req, res) => {
   try {
     const { date } = req.query
-
-    if (!date) {
-      const rows = await getAllEmployees()
-      //  process employee data to specific format
-      const allRows = await processEmployeeData(rows)
-      const result = await transStringToInteger(allRows)
-      return res.status(200).json({ data: result })
-    }
 
     const rows = await employeesForSpecificDate(date)
 
@@ -152,7 +143,7 @@ const clockFeature = async (req, res) => {
       error: 'Request body of employeeNumber or clockIn or clockOut required.'
     })
   }
-  
+
   if (checkSignedOrUnsigned(clockIn) && !clockOut) {
     const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
 
@@ -162,7 +153,7 @@ const clockFeature = async (req, res) => {
         .json({ message: 'ClockIn record created successfully' })
     }
   }
-  
+
   if (checkSignedOrUnsigned(clockOut) && !clockIn) {
     const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
 
@@ -177,7 +168,6 @@ const clockFeature = async (req, res) => {
       .status(400)
       .json({ error: 'ClockIn or clockOut must be greater than zero.' })
   }
-
 
   const checkClockTime = workTimeGreaterThanOffWorkTime(clockIn, clockOut)
   //  make sure work time is less than off-work time
@@ -202,7 +192,7 @@ const clockFeature = async (req, res) => {
 module.exports = {
   clockFeature,
   fillInClockinOrClockout,
-  allEmployeesOrEmployeesForSpecificDate,
+  allEmployeesForSpecificDate,
   employeesWithClockinEarliestForSpecificDate,
   employeesWithNoClockoutForSpecificDateRange
 }

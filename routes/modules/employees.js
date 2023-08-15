@@ -4,7 +4,7 @@ const router = express.Router()
 const {
   clockFeature,
   fillInClockinOrClockout,
-  allEmployeesOrEmployeesForSpecificDate,
+  allEmployeesForSpecificDate,
   employeesWithClockinEarliestForSpecificDate,
   employeesWithNoClockoutForSpecificDateRange
 } = require('../../controller/employees-controller')
@@ -20,7 +20,7 @@ router.put('/:employeenumber', fillInClockinOrClockout)
 
 router.post('/', clockFeature)
 
-// list all employees data or all employees for a specific date
-router.get('/', allEmployeesOrEmployeesForSpecificDate)
+// list all employees for a specific date
+router.get('/', allEmployeesForSpecificDate)
 
 module.exports = router
