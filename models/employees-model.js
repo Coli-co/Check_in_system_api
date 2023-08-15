@@ -110,12 +110,13 @@ async function employeesWithNoClockout(startDate, endDate) {
 async function employeesWithClockinEarliest(date) {
   try {
     const query = `
-    SELECT *
+      SELECT *
       FROM employees
-      WHERE clockIn = $1
-      ORDER BY clockIn ASC
+      WHERE clockin IS NOT NULL
+        AND DATE_TRUNC('day', TO_TIMESTAMP(clockin / 1000.0)) = DATE_TRUNC('day', TO_TIMESTAMP($1 / 1000.0))
+      ORDER BY clockin
       LIMIT 5;
-      `
+    `
     const { rows } = await pool.query(query, [date])
     if (rows.length > 0) {
       console.log('Get clockin earliest employees data successfully.')
