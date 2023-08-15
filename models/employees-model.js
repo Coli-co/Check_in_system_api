@@ -92,7 +92,9 @@ async function employeesWithNoClockout(startDate, endDate) {
     const query = `
       SELECT *
       FROM employees
-      WHERE clockOut IS NULL AND clockIn >= $1 AND clockIn <= $2;
+      WHERE clockOut IS NULL
+      AND  TO_TIMESTAMP( clockIn / 1000.0) >= TO_TIMESTAMP($1 / 1000.0)
+      AND  TO_TIMESTAMP( clockIn / 1000.0) <= TO_TIMESTAMP($2 / 1000.0) + INTERVAL '1 day - 1 second';
     `
     const { rows } = await pool.query(query, [startDate, endDate])
     if (rows.length > 0) {
