@@ -22,7 +22,7 @@ router.put('/:employeenumber', fillInClockinOrClockout)
 router.post('/', clockFeature)
 
 // list all employees for a specific date range
-router.get('/', allEmployeesForSpecificDateRange)
+router.get('/date-range', allEmployeesForSpecificDateRange)
 
 // list all employees for a specific date
 router.get('/', allEmployeesForSpecificDate)
