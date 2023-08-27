@@ -4,11 +4,10 @@ const port = 3000
 const bodyParser = require('body-parser')
 const routes = require('./routes')
 const {
-  GetSuccess,
-  CreatedSuccess,
+  GetSuccessResponse,
+  CreatedSuccessResponse,
   BadRequestError,
-  NotFoundError,
-  InternalServerError
+  NotFoundError
 } = require('./middleware/custom-responses-handler')
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -19,14 +18,12 @@ app.use(routes)
 
 // Error middleware
 app.use((err, req, res, next) => {
-  if (
-    err instanceof BadRequestError ||
-    err instanceof NotFoundError ||
-    err instanceof InternalServerError
-  ) {
+  if (err instanceof BadRequestError || err instanceof NotFoundError) {
     return res.status(err.statusCode).json({ error: err.message })
-  } else if (err instanceof GetSuccess || err instanceof CreatedSuccess) {
+  } else if (err instanceof GetSuccessResponse) {
     return res.status(err.statusCode).json({ data: err.data })
+  } else if (err instanceof CreatedSuccessResponse) {
+    return res.status(err.statusCode).json({ message: err.message })
   } else {
     console.error(err)
     return res.status(500).json({ error: 'An unexpected error occurred' })

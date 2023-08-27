@@ -20,110 +20,123 @@ const {
   employeesForSpecificDateRange
 } = require('../models/employees-model')
 
-const allEmployeesForSpecificDateRange = async (req, res) => {
+const {
+  GetSuccessResponse,
+  CreatedSuccessResponse,
+  BadRequestError,
+  NotFoundError
+} = require('../middleware/custom-responses-handler')
+
+const allEmployeesForSpecificDateRange = async (req, res, next) => {
   try {
     const { start, end } = req.query
 
     // check empty value
     if (!start || !end) {
-      return res
-        .status(400)
-        .json({ error: 'Query params of start and end both required. ' })
+      return next(
+        new BadRequestError('Query params of start and end both required.')
+      )
     }
 
     if (!checkSignedOrUnsigned(start) || !checkSignedOrUnsigned(end)) {
-      return res
-        .status(400)
-        .json({ error: 'Start or end must be grater than zero.' })
+      return next(new BadRequestError('Start or end must be grater than zero.'))
     }
 
     if (workTimeGreaterThanOffWorkTime(start, end)) {
-      return res
-        .status(400)
-        .json({ error: 'Start value must be less than end value.' })
+      return next(
+        new BadRequestError('Start value must be less than end value.')
+      )
     }
     const rows = await employeesForSpecificDateRange(start, end)
     if (rows.length === 0) {
-      return res.status(200).json({ data: [] })
+      const successResponse = new GetSuccessResponse([])
+
+      return next(successResponse)
     }
     const allRows = await processEmployeeData(rows)
     const result = await transStringToInteger(allRows)
-    return res.status(200).json({ data: result })
+    const successResponse = new GetSuccessResponse(result)
+
+    return next(successResponse)
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 
-const allEmployeesForSpecificDate = async (req, res) => {
+const allEmployeesForSpecificDate = async (req, res, next) => {
   try {
     const { date } = req.query
 
     const rows = await employeesForSpecificDate(date)
 
     if (rows.length === 0) {
-      return res.status(200).json({ data: [] })
+      const successResponse = new GetSuccessResponse([])
+      return next(successResponse)
     }
 
     const allRows = await processEmployeeData(rows)
     const result = await transStringToInteger(allRows)
-    return res.status(200).json({ data: result })
+    const successResponse = new GetSuccessResponse(result)
+    return next(successResponse)
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 
-const employeesWithNoClockoutForSpecificDateRange = async (req, res) => {
+const employeesWithNoClockoutForSpecificDateRange = async (req, res, next) => {
   try {
     const { start, end } = req.query
     const checkDate = workTimeGreaterThanOffWorkTime(start, end)
 
     //  make sure startDate is less than endDate.
     if (checkDate) {
-      return res
-        .status(400)
-        .send({ message: 'Start date must be less than end date.' })
+      return next(new BadRequestError('Start date must be less than end date.'))
     }
 
     const rows = await employeesWithNoClockout(start, end)
     if (rows.length === 0) {
-      return res.status(200).json({ data: [] })
+      const successResponse = new GetSuccessResponse([])
+      return next(successResponse)
     }
     const result = await transStringToInteger(rows)
-    return res.status(200).json({ data: result })
+    const successResponse = new GetSuccessResponse(result)
+    return next(successResponse)
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 
-const employeesWithClockinEarliestForSpecificDate = async (req, res) => {
+const employeesWithClockinEarliestForSpecificDate = async (req, res, next) => {
   try {
     const { date } = req.query
     const rows = await employeesWithClockinEarliest(date)
     if (rows.length === 0) {
-      return res.status(200).json({ data: [] })
+      const successResponse = new GetSuccessResponse([])
+      return next(successResponse)
     }
     const result = await transStringToInteger(rows)
-    return res.status(200).json({ data: result })
+    const successResponse = new GetSuccessResponse(result)
+    return next(successResponse)
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 
-const fillInClockinOrClockout = async (req, res) => {
+const fillInClockinOrClockout = async (req, res, next) => {
   try {
     const { employeenumber } = req.params
     const { clockIn, clockOut } = req.body
 
     if (!clockIn && !clockOut) {
-      return res
-        .status(400)
-        .json({ error: 'Request body of clockin or clockout required.' })
+      return next(
+        new BadRequestError('Request body of clockin or clockout required.')
+      )
     }
 
     const rows = await findEmployeeExistOrNot(employeenumber)
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Employee not found.' })
+      return next(new NotFoundError('Employee not found.'))
     }
 
     //  check employee loss data of clockin or clockout data
@@ -135,9 +148,11 @@ const fillInClockinOrClockout = async (req, res) => {
 
     // employee have both clockin and clockout data
     if (!haveClockInOrClockout) {
-      return res
-        .status(400)
-        .json({ error: 'You do not need to fill in clockin or clockout data.' })
+      return next(
+        new BadRequestError(
+          'You do not need to fill in clockin or clockout data.'
+        )
+      )
     }
 
     const id = haveClockInOrClockout[0]
@@ -145,47 +160,50 @@ const fillInClockinOrClockout = async (req, res) => {
 
     //  if checkIn or checkOut time is not reasonable
     if (!validTime) {
-      return res.status(400).json({
-        error:
+      return next(
+        new BadRequestError(
           'Work time must be less than off-work time or off-work time must be greater than work time.'
-      })
+        )
+      )
     }
 
     if (!clockIn) {
       const updateClockoutRes = await fillInClockoutData(id, clockOut)
       if (updateClockoutRes) {
-        return res
-          .status(201)
-          .json({ message: 'Clockout record updated successfully.' })
+        return next(
+          new CreatedSuccessResponse('Clockout record updated successfully.')
+        )
       }
     }
     const updateClockinRes = await fillInClockinData(id, clockIn)
     if (updateClockinRes) {
-      return res
-        .status(201)
-        .json({ message: 'Clockin record updated successfully.' })
+      return next(
+        new CreatedSuccessResponse('Clockin record updated successfully.')
+      )
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 
-const clockFeature = async (req, res) => {
+const clockFeature = async (req, res, next) => {
   const { employeeNumber, clockIn, clockOut } = req.body
 
   if (!employeeNumber && !clockIn && !clockOut) {
-    return res.status(400).json({
-      error: 'Request body of employeeNumber or clockIn or clockOut required.'
-    })
+    return next(
+      new BadRequestError(
+        'Request body of employeeNumber or clockIn or clockOut required.'
+      )
+    )
   }
 
   if (checkSignedOrUnsigned(clockIn) && !clockOut) {
     const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
 
     if (rowCount) {
-      return res
-        .status(201)
-        .json({ message: 'ClockIn record created successfully' })
+      return next(
+        new CreatedSuccessResponse('ClockIn record created successfully.')
+      )
     }
   }
 
@@ -193,34 +211,34 @@ const clockFeature = async (req, res) => {
     const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
 
     if (rowCount) {
-      return res
-        .status(201)
-        .json({ message: 'ClockOut record created successfully' })
+      return next(
+        new CreatedSuccessResponse('ClockOut record created successfully.')
+      )
     }
   }
   if (!checkSignedOrUnsigned(clockIn) || !checkSignedOrUnsigned(clockOut)) {
-    return res
-      .status(400)
-      .json({ error: 'ClockIn or clockOut must be greater than zero.' })
+    return next(
+      new BadRequestError('ClockIn or clockOut must be greater than zero.')
+    )
   }
 
   const checkClockTime = workTimeGreaterThanOffWorkTime(clockIn, clockOut)
   //  make sure work time is less than off-work time
   if (checkClockTime) {
-    return res
-      .status(400)
-      .json({ error: 'Work time should not be greater than off-work time.' })
+    return next(
+      new BadRequestError('Work time should not be greater than off-work time.')
+    )
   }
   try {
     const rowCount = await clockinAndClockout(employeeNumber, clockIn, clockOut)
 
     if (rowCount) {
-      return res
-        .status(201)
-        .json({ message: 'Employee record created successfully' })
+      return next(
+        new CreatedSuccessResponse('Employee record created successfully')
+      )
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' })
+    return next(error)
   }
 }
 

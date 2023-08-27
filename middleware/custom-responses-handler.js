@@ -1,15 +1,13 @@
-class GetSuccess extends Error {
+class GetSuccessResponse {
   constructor(data) {
-    super()
     this.statusCode = 200
     this.data = data
   }
 }
-class CreatedSuccess extends Error {
-  constructor(data) {
-    super()
+class CreatedSuccessResponse {
+  constructor(message) {
     this.statusCode = 201
-    this.data = data
+    this.message = message
   }
 }
 
@@ -29,18 +27,9 @@ class NotFoundError extends Error {
   }
 }
 
-class InternalServerError extends Error {
-  constructor(message) {
-    super(message)
-    this.name = 'InternalServerError'
-    this.statusCode = 500
-  }
-}
-
 module.exports = {
-  GetSuccess,
-  CreatedSuccess,
+  GetSuccessResponse,
+  CreatedSuccessResponse,
   BadRequestError,
-  NotFoundError,
-  InternalServerError
+  NotFoundError
 }
