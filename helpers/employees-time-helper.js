@@ -60,7 +60,7 @@ async function checkClockInOrClockOut(data, clockIn, clockOut) {
 }
 
 function checkSignedOrUnsigned(input) {
-  return input > 0
+  return Number(input) > 0
 }
 
 module.exports = {

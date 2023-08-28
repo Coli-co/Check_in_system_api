@@ -69,3 +69,65 @@ describe('workTimeGreaterThanOffWorkTime', () => {
     expect(result).toBe(false)
   })
 })
+
+describe('checkClockInOrClockOut', () => {
+  //  employee does not have clockIn data
+  //  clockIn data must be less than original clockOut data
+  it('should return correctly when employee does not have clockIn data', async () => {
+    const data = [{ id: 1, clockin: null, clockout: 1641373980000 }]
+    const clockIn = 1741373980000
+    const clockOut = null
+
+    const result = await checkClockInOrClockOut(data, clockIn, clockOut)
+
+    expect(result).toEqual([1, false])
+  })
+  //  employee does not have clockOut data
+  //  clockOut data must be greater than original clockIn data
+  it('should return correctly when employee does not have clockOut data', async () => {
+    const data = [{ id: 2, clockin: 1741373980000, clockout: null }]
+    const clockIn = null
+    const clockOut = 1841373980000
+
+    const result = await checkClockInOrClockOut(data, clockIn, clockOut)
+
+    expect(result).toEqual([2, true])
+  })
+
+  it('should return [id, false]  when employee with both clockin & clockout data and wants to fill in clockin', async () => {
+    const data = [{ id: 5, clockin: 1841373580000, clockout: 1841373980000 }]
+    const clockIn = 1831373580000
+    const clockOut = null
+
+    const result = await checkClockInOrClockOut(data, clockIn, clockOut)
+
+    expect(result).toBeUndefined()
+  })
+
+  it('should return [id, false] when employee with both clockin & clockout data and wants to fill in clockout', async () => {
+    const data = [{ id: 5, clockin: 1841373580000, clockout: 1841373980000 }]
+    const clockIn = null
+    const clockOut = 1931373580000
+    const result = await checkClockInOrClockOut(data, clockIn, clockOut)
+
+    expect(result).toBeUndefined()
+  })
+})
+
+describe('checkSignedOrUnsigned', () => {
+  it('should return true when input greater than zero', () => {
+    const input = 1931373580000
+    const result = checkSignedOrUnsigned(input)
+    expect(result).toBe(true)
+  })
+  it('should return false when input less than zero', () => {
+    const input = -1931373580000
+    const result = checkSignedOrUnsigned(input)
+    expect(result).toBe(false)
+  })
+  it('should return false when input equal to zero', () => {
+    const input = 0
+    const result = checkSignedOrUnsigned(input)
+    expect(result).toBe(false)
+  })
+})
